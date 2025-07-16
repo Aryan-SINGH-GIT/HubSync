@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Button, Modal, Form, Row, Col, Badge } from 'react-bootstrap';
+import { Button, Modal, Form, Row, Col, Badge, Spinner } from 'react-bootstrap';
 
 const API_URL = 'http://localhost:4000/api/notes';
+const AI_URL = 'http://localhost:4000/api/ai/summary';
 
 function NotesPage() {
   const [notes, setNotes] = useState([]);
@@ -9,6 +10,9 @@ function NotesPage() {
   const [selectedNote, setSelectedNote] = useState(null);
   const [form, setForm] = useState({ profileType: '', profileId: '', note: '', type: '', created_by: '', timestamp: '' });
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSummary, setAiSummary] = useState('');
+  const [aiTags, setAiTags] = useState([]);
 
   // Fetch notes
   const fetchNotes = () => {
@@ -24,6 +28,8 @@ function NotesPage() {
   // Open modal for add or edit
   const handleShowModal = (note) => {
     setSelectedNote(note);
+    setAiSummary('');
+    setAiTags([]);
     if (note) {
       setForm({
         profileType: note.profileType,
@@ -43,6 +49,8 @@ function NotesPage() {
   const handleCloseModal = () => {
     setSelectedNote(null);
     setForm({ profileType: '', profileId: '', note: '', type: '', created_by: '', timestamp: '' });
+    setAiSummary('');
+    setAiTags([]);
     setShowModal(false);
   };
 
@@ -91,6 +99,30 @@ function NotesPage() {
     }
   };
 
+  // AI Summarize
+  const handleAISummarize = async () => {
+    setAiLoading(true);
+    setAiSummary('');
+    setAiTags([]);
+    try {
+      const res = await fetch(AI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: form.note }),
+      });
+      const data = await res.json();
+      setAiSummary(data.summary);
+      setAiTags(data.tags);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Replace note with AI summary
+  const handleReplaceWithSummary = () => {
+    setForm({ ...form, note: aiSummary });
+  };
+
   return (
     <div>
       <div className="d-flex align-items-center justify-content-between mb-3">
@@ -103,7 +135,7 @@ function NotesPage() {
         {notes.map(note => (
           <Col key={note.id}>
             <div
-              className="card h-100 border-0 shadow-sm rounded-4"
+              className="card h-100 border-0 shadow-sm rounded-4 position-relative"
               style={{
                 background: 'linear-gradient(135deg, #ff9800 0%, #fff3e0 100%)',
                 color: '#222',
@@ -114,6 +146,7 @@ function NotesPage() {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
+                paddingBottom: 32,
               }}
               onClick={() => handleShowModal(note)}
               onMouseOver={e => {
@@ -127,6 +160,10 @@ function NotesPage() {
             >
               <div className="fw-bold" style={{ fontSize: 20 }}>{note.profileType}</div>
               <div style={{ fontSize: 16 }}>{note.note}</div>
+              <div className="mt-2"><Badge bg="info">{note.type}</Badge></div>
+              <div style={{ position: 'absolute', bottom: 8, right: 16, fontSize: 12, color: '#555' }}>
+                {note.timestamp && new Date(note.timestamp).toLocaleString()}
+              </div>
             </div>
           </Col>
         ))}
@@ -171,6 +208,34 @@ function NotesPage() {
                 disabled={loading}
               />
             </Form.Group>
+            <Button
+              variant="info"
+              className="mb-2"
+              onClick={handleAISummarize}
+              disabled={aiLoading || loading || !form.note}
+              type="button"
+            >
+              {aiLoading ? <Spinner size="sm" animation="border" /> : 'Summarize with AI'}
+            </Button>
+            {aiSummary && (
+              <div className="mb-2">
+                <div><b>AI Summary:</b> {aiSummary}</div>
+                {aiTags.length > 0 && (
+                  <div className="mt-1">
+                    <b>Tags:</b> {aiTags.map(tag => <Badge bg="secondary" className="me-1" key={tag}>{tag}</Badge>)}
+                  </div>
+                )}
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  className="mt-2"
+                  onClick={handleReplaceWithSummary}
+                  type="button"
+                >
+                  Replace Note with AI Summary
+                </Button>
+              </div>
+            )}
             <Form.Group className="mb-3">
               <Form.Label>Type</Form.Label>
               <Form.Control
@@ -188,17 +253,6 @@ function NotesPage() {
                 type="text"
                 name="created_by"
                 value={form.created_by}
-                onChange={handleChange}
-                required
-                disabled={loading}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Timestamp</Form.Label>
-              <Form.Control
-                type="text"
-                name="timestamp"
-                value={form.timestamp}
                 onChange={handleChange}
                 required
                 disabled={loading}

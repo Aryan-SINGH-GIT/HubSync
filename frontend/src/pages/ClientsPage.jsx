@@ -93,7 +93,7 @@ function ClientsPage() {
         <Button className="ms-3" onClick={() => handleShowModal(null)}>Add Client</Button>
       </div>
       <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-        {clients.map(client => (
+          {clients.map(client => (
           <Col key={client.id}>
             <div
               className="card h-100 border-0 shadow-sm rounded-4"
@@ -129,7 +129,7 @@ function ClientsPage() {
           <Modal.Title>{selectedClient ? 'Edit Client' : 'Add Client'}</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleSubmit}>
-          <Modal.Body>
+        <Modal.Body>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control
@@ -163,8 +163,8 @@ function ClientsPage() {
                 disabled={loading}
               />
             </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
+        </Modal.Body>
+        <Modal.Footer>
             {selectedClient && (
               <Button variant="danger" onClick={handleDelete} disabled={loading}>Delete</Button>
             )}
@@ -172,7 +172,7 @@ function ClientsPage() {
               {selectedClient ? 'Update' : 'Add'}
             </Button>
             <Button variant="secondary" onClick={handleCloseModal} disabled={loading}>Close</Button>
-          </Modal.Footer>
+        </Modal.Footer>
         </Form>
       </Modal>
     </div>

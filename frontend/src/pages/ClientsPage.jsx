@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal, Form, Row, Col } from 'react-bootstrap';
 
-const API_URL = 'http://localhost:4000/api/clients';
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/clients`;
 
 function ClientsPage() {
   const [clients, setClients] = useState([]);

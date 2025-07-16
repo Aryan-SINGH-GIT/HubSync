@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal, Form, Row, Col, Badge } from 'react-bootstrap';
 
-const API_URL = 'http://localhost:4000/api/gigs';
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/gigs`;
 
 function GigsPage() {
   const [gigs, setGigs] = useState([]);

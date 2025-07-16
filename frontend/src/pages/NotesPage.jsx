@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal, Form, Row, Col, Badge, Spinner } from 'react-bootstrap';
 
-const API_URL = 'http://localhost:4000/api/notes';
-const AI_URL = 'http://localhost:4000/api/ai/summary';
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/notes`;
+const AI_URL = `${import.meta.env.VITE_API_BASE_URL}/api/ai/summary`;
 
 function NotesPage() {
   const [notes, setNotes] = useState([]);

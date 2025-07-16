@@ -27,7 +27,8 @@ router.get('/:id', (req, res) => {
 
 // Create a new note
 router.post('/', (req, res) => {
-  const { profileType, profileId, note, type, created_by, timestamp } = req.body;
+  let { profileType, profileId, note, type, created_by, timestamp } = req.body;
+  if (!timestamp) timestamp = new Date().toISOString();
   const newNote = { id: uuidv4(), profileType, profileId, note, type, created_by, timestamp };
   data.notes.push(newNote);
   logData();
@@ -38,7 +39,8 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   const note = data.notes.find(n => n.id === req.params.id);
   if (!note) return res.status(404).json({ error: 'Note not found' });
-  const { profileType, profileId, note: noteText, type, created_by, timestamp } = req.body;
+  let { profileType, profileId, note: noteText, type, created_by, timestamp } = req.body;
+  if (!timestamp) timestamp = new Date().toISOString();
   note.profileType = profileType;
   note.profileId = profileId;
   note.note = noteText;
